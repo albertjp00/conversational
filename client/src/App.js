@@ -11,7 +11,7 @@ import {
 } from "recharts";
 
 // Axios default config
-axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.baseURL = 'https://conversational-server.vercel.app';
 axios.defaults.withCredentials = true;
 
 function App() {
