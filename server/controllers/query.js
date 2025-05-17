@@ -68,13 +68,23 @@ const query = async (req, res) => {
 
 
 
-
+const printdata = async(req,res)=>{
+try {
+  console.log("hello");
+  
+  res.send("Hello")
+} catch (error) {
+  console.log(error);
+  
+}
+}
 
 
 
 
 module.exports = {
   query,
+  printdata
 }
 
 
