@@ -5,6 +5,9 @@ const generateSQL = require("./generateSql");
 const { default: axios } = require("axios");
 
 
+
+
+
 const query = async (req, res) => {
   console.log("Query endpoint hit ✅");
 
@@ -24,18 +27,15 @@ const query = async (req, res) => {
       .map((r) => `${r.table_name}.${r.column_name} (${r.data_type})`)
       .join("\n");
 
-    // 2. Generate SQL from the question and schema
     const sql = await generateSQL(question, schema);
     console.log("Generated SQL:", sql);
 
-    // 3. Execute the SQL
     let result;
     try {
       result = await db.query(sql);
     } catch (dbError) {
       console.error("DB Query Error:", dbError.message);
 
-      // Return custom message if SQL references invalid tables/columns
       return res.json({
         sql,
         result: [],
