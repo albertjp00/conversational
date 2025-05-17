@@ -5,7 +5,7 @@ const { user } = require("./routes/route");
 require("dotenv").config();
 
 const corsOptions = {
-    origin: "https://conversational-client.vercel.app/",  
+    origin: "https://conversational-client.vercel.app",  
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,  
