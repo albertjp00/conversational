@@ -68,19 +68,20 @@ require('dotenv').config()
 
 async function generateSQL(question, schemaDescription) {
   try {
-    console.log("🛠️ Calling OpenAI to generate SQL...");
+    console.log("🛠️ Calling Gemini to generate SQL...");
+
+    if (!process.env.API_KEY) {
+      console.error("❌ Missing API key.");
+      return "Error: API key is missing. Please check your server configuration.";
+    }
 
     const prompt = `
-    
-
-    The database has a messy schema and sometimes missing or unclear column names.
-
-    use postgreSQl queries to get the output
-
-    if a table doesn't exist tell not data not available 
+The database has a messy schema and sometimes missing or unclear column names.
+Use PostgreSQL queries to get the output.
+If a table doesn't exist, say "data not available."
 
 You are a data analyst. Use the schema below and user question to write an accurate SQL query.
-if  the schema is not helpful create a query in suitable with the question for the  output
+If the schema is not helpful, create a query suitable for the question output.
 
 Schema:
 ${schemaDescription}
@@ -91,31 +92,32 @@ ${question}
 Return SQL only, no explanations.
 `;
 
-const response = await axios.post(
-          `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.API_KEY}`
-  
-  
-  ,
-          {
-            contents: [{ role: "user", parts: [{ text: prompt }] }]
-          }
-        );
-    
-        console.log("responseeee",response.data);
-        
-        const sqlObj = response.data.candidates[0].content;
-        const rawSQL = sqlObj.parts[0].text;
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.API_KEY}`,
+      {
+        contents: [{ role: "user", parts: [{ text: prompt }] }]
+      }
+    );
 
-        const cleanedSQL = rawSQL.replace(/```sql|```/g, '').trim();
+    if (
+      !response.data?.candidates ||
+      !response.data.candidates[0]?.content?.parts[0]?.text
+    ) {
+      console.error("❌ Invalid response from Gemini API");
+      return "Error: Failed to generate SQL. Invalid response from Gemini API.";
+    }
 
-        // console.log("✅ Generated SQL:", cleanedSQL);
-        return cleanedSQL;
+    const rawSQL = response.data.candidates[0].content.parts[0].text;
+    const cleanedSQL = rawSQL.replace(/```sql|```/g, '').trim();
+
+    return cleanedSQL;
 
   } catch (error) {
     console.error("❌ Error generating SQL:", error.response?.data || error.message);
-    throw error;
+    return `Error: ${error.response?.data?.error?.message || error.message || "Unknown error occurred."}`;
   }
 }
+
 
 
 
