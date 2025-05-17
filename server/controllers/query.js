@@ -75,7 +75,6 @@ const query = async (req, res) => {
 
 module.exports = {
   query,
-  printdata
 }
 
 
